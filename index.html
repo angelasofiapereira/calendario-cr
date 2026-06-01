@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0061)file:///C:/Users/angel/Downloads/contexto-rural-firebase.html -->
+<!-- saved from url=(0043)file:///C:/Users/angel/Downloads/index.html -->
 <html lang="pt"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -91,7 +91,7 @@
     <div class="login-label">Contexto Rural</div>
     <div class="login-title">Calendário de Visitas</div>
     <div class="login-sub">Quem és tu?</div>
-    <div id="user-list"><button class="user-btn"><span style="font-size:18px">🌿</span>Catarina<span class="user-role">Técnico</span></button><button class="user-btn"><span style="font-size:18px">🌿</span>Cláudia<span class="user-role">Técnico</span></button><button class="user-btn"><span style="font-size:18px">🌿</span>Francisco<span class="user-role">Técnico</span></button><button class="user-btn"><span style="font-size:18px">🌿</span>Josefa<span class="user-role">Técnico</span></button><button class="user-btn"><span style="font-size:18px">🌿</span>Tomás<span class="user-role">Técnico</span></button><button class="user-btn gestor"><span style="font-size:18px">📋</span>Angela<span class="user-role">Gestor</span></button><button class="user-btn gestor"><span style="font-size:18px">📋</span>Bruno<span class="user-role">Gestor</span></button><button class="user-btn gestor"><span style="font-size:18px">📋</span>Carla<span class="user-role">Gestor</span></button></div>
+    <div id="user-list"><button class="user-btn"><span style="font-size:18px">🌿</span>Catarina<span class="user-role">Técnico</span></button><button class="user-btn"><span style="font-size:18px">🌿</span>Cláudia<span class="user-role">Técnico</span></button><button class="user-btn"><span style="font-size:18px">🌿</span>Francisco<span class="user-role">Técnico</span></button><button class="user-btn"><span style="font-size:18px">🌿</span>Josefa<span class="user-role">Técnico</span></button><button class="user-btn"><span style="font-size:18px">🌿</span>Tomás<span class="user-role">Técnico</span></button><button class="user-btn gestor"><span style="font-size:18px">📋</span>Angela<span class="user-role">Gestor</span></button><button class="user-btn gestor"><span style="font-size:18px">📋</span>Cristina<span class="user-role">Gestor</span></button><button class="user-btn gestor"><span style="font-size:18px">📋</span>Francisca<span class="user-role">Gestor</span></button></div>
   </div>
 </div>
 
@@ -193,7 +193,7 @@ const db = getFirestore(fireApp);
 
 // ── Dados ──────────────────────────────────────────────────────────────────
 const TECNICOS = ["Catarina","Cláudia","Francisco","Josefa","Tomás"];
-const GESTORES = ["Angela","Bruno","Carla"];
+const GESTORES = ["Angela","Cristina","Francisca"];
 const TODOS = [...TECNICOS, ...GESTORES];
 const MESES = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
 const MONTH_MAP = {jan:0,fev:1,mar:2,abr:3,mai:4,jun:5,jul:6,ago:7,set:8,out:9,nov:10,dez:11};
@@ -225,7 +225,7 @@ let initialized = false;
 
 // ── Login ──────────────────────────────────────────────────────────────────
 const userList = document.getElementById('user-list');
-TODOS.forEach(u => {
+if(userList.innerHTML=="") TODOS.forEach(u => {
   const btn = document.createElement('button');
   btn.className = 'user-btn' + (GESTORES.includes(u) ? ' gestor' : '');
   btn.innerHTML = `<span style="font-size:18px">${TECNICOS.includes(u)?'🌿':'📋'}</span>${u}<span class="user-role">${TECNICOS.includes(u)?'Técnico':'Gestor'}</span>`;
