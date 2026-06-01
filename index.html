@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0043)file:///C:/Users/angel/Downloads/index.html -->
+<!-- saved from url=(0045)file:///C:/Users/angel/Downloads/index_1.html -->
 <html lang="pt"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,9 +17,9 @@
   .login-label{font-size:11px;letter-spacing:3px;color:#7a9e7a;text-transform:uppercase;margin-bottom:8px;}
   .login-title{font-size:26px;font-weight:600;color:#1a2e1a;margin-bottom:4px;font-family:'Lora',serif;}
   .login-sub{font-size:13px;color:#8a9a8a;margin-bottom:28px;}
-  .user-btn{width:100%;padding:13px 20px;border-radius:12px;border:1.5px solid #d4e6d4;background:#f4faf4;color:#1a2e1a;font-size:15px;cursor:pointer;font-family:'Source Sans 3',sans-serif;font-weight:500;text-align:left;display:flex;align-items:center;gap:10px;margin-bottom:8px;transition:all .15s;}
+  .user-btn{width:100%;padding:13px 20px;border-radius:12px;border:1.5px solid #d4e6d4;background:#f4faf4;color:#1a2e1a;font-size:15px;cursor:pointer;font-family:'Source Sans 3',sans-serif;font-weight:500;text-align:left;display:flex;align-items:center;gap:10px;margin-bottom:8px;transition:all .15s;touch-action:manipulation;-webkit-tap-highlight-color:transparent;}
   .user-btn.gestor{background:#f0f4ff;border-color:#d4d8f4;}
-  .user-btn:hover{transform:translateX(4px);}
+  .user-btn:hover{transform:translateX(4px);} .user-btn:active{transform:translateX(4px);opacity:.8;}
   .user-role{margin-left:auto;font-size:11px;color:#9aaa9a;font-weight:300;}
 
   /* Header */
@@ -229,7 +229,7 @@ if(userList.innerHTML=="") TODOS.forEach(u => {
   const btn = document.createElement('button');
   btn.className = 'user-btn' + (GESTORES.includes(u) ? ' gestor' : '');
   btn.innerHTML = `<span style="font-size:18px">${TECNICOS.includes(u)?'🌿':'📋'}</span>${u}<span class="user-role">${TECNICOS.includes(u)?'Técnico':'Gestor'}</span>`;
-  btn.onclick = () => loginAs(u);
+  btn.addEventListener('click', () => loginAs(u)); btn.addEventListener('touchend', (e) => { e.preventDefault(); loginAs(u); });
   userList.appendChild(btn);
 });
 
@@ -473,16 +473,4 @@ function populateSelects(hEl, tEl, visit) {
   const tSel = document.getElementById(tEl);
   hSel.innerHTML = HERDADES.map(h => `<option${visit&&visit.herdade===h?' selected':''}>${h}</option>`).join('');
   tSel.innerHTML = TECNICOS.map(t => `<option${visit&&visit.tecnico===t?' selected':''}>${t}</option>`).join('');
-  if (!visit && currentUser && TECNICOS.includes(currentUser)) {
-    tSel.value = currentUser;
-  }
-}
-
-function closeModal(id) {
-  document.getElementById(id).style.display = 'none';
-}
-window.closeModal = closeModal;
-</script>
-
-
-</body></html>
+  if (!visit && current
