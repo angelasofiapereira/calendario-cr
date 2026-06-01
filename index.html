@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<!-- saved from url=(0061)file:///C:/Users/angel/Downloads/contexto-rural-firebase.html -->
+<html lang="pt"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calendário de Visitas — Contexto Rural</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Lora:wght@400;600&family=Source+Sans+3:wght@300;400;600&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Source Sans 3','Segoe UI',sans-serif;background:#f0f4f0;min-height:100vh;}
+  ::-webkit-scrollbar{width:4px;height:4px;}
+  ::-webkit-scrollbar-thumb{background:#c8dbc8;border-radius:2px;}
+
+  /* Login */
+  #login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
+  .login-box{background:#fff;border-radius:20px;padding:40px 36px;max-width:380px;width:100%;box-shadow:0 8px 40px #00000014;text-align:center;}
+  .login-label{font-size:11px;letter-spacing:3px;color:#7a9e7a;text-transform:uppercase;margin-bottom:8px;}
+  .login-title{font-size:26px;font-weight:600;color:#1a2e1a;margin-bottom:4px;font-family:'Lora',serif;}
+  .login-sub{font-size:13px;color:#8a9a8a;margin-bottom:28px;}
+  .user-btn{width:100%;padding:13px 20px;border-radius:12px;border:1.5px solid #d4e6d4;background:#f4faf4;color:#1a2e1a;font-size:15px;cursor:pointer;font-family:'Source Sans 3',sans-serif;font-weight:500;text-align:left;display:flex;align-items:center;gap:10px;margin-bottom:8px;transition:all .15s;}
+  .user-btn.gestor{background:#f0f4ff;border-color:#d4d8f4;}
+  .user-btn:hover{transform:translateX(4px);}
+  .user-role{margin-left:auto;font-size:11px;color:#9aaa9a;font-weight:300;}
+
+  /* Header */
+  #app{display:none;}
+  .header{background:#fff;border-bottom:1px solid #e0ece0;padding:14px 20px;display:flex;align-items:center;gap:12;position:sticky;top:0;z-index:10;}
+  .header-info{flex:1;}
+  .header-brand{font-size:11px;color:#7a9e7a;letter-spacing:2px;text-transform:uppercase;}
+  .header-title{font-size:17px;font-weight:600;color:#1a2e1a;font-family:'Lora',serif;}
+  .user-chip{font-size:13px;color:#5a7a5a;background:#f0f7f0;padding:6px 14px;border-radius:20px;white-space:nowrap;}
+  .logout-btn{background:none;border:none;color:#9aaa9a;cursor:pointer;font-size:12px;font-family:inherit;padding:4px 8px;}
+
+  /* Nav mês */
+  .month-nav{padding:16px 20px 8px;display:flex;align-items:center;gap:12;flex-wrap:wrap;}
+  .nav-btn{background:#fff;border:1.5px solid #c8dbc8;border-radius:8px;padding:6px 14px;cursor:pointer;font-size:16px;line-height:1;}
+  .month-title{font-size:20px;font-weight:600;color:#1a2e1a;font-family:'Lora',serif;min-width:180px;text-align:center;}
+  .visit-count{font-size:13px;color:#7a9e7a;margin-left:auto;}
+
+  /* Filtros */
+  .filters{padding:0 20px 12px;display:flex;gap:8px;overflow-x:auto;padding-bottom:12px;}
+  .filter-btn{border:1.5px solid #c8dbc8;border-radius:20px;padding:5px 14px;background:#fff;font-size:13px;cursor:pointer;font-family:inherit;white-space:nowrap;transition:all .15s;}
+  .filter-btn.active{background:#3a7a3a;border-color:#3a7a3a;color:#fff;}
+
+  /* Grid */
+  .cal-wrap{padding:0 12px 24px;}
+  .weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:4px;}
+  .weekday{text-align:center;font-size:11px;font-weight:600;color:#7a9e7a;padding:4px 0;letter-spacing:1px;}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+  .day-cell{min-height:72px;background:#fff;border-radius:10px;padding:6px 6px 4px;border:1.5px solid #e8f0e8;cursor:pointer;transition:box-shadow .15s,transform .1s;}
+  .day-cell:hover{box-shadow:0 4px 16px #00000018;transform:translateY(-1px);}
+  .day-cell.today{border:2px solid #3a7a3a;}
+  .day-num{font-size:12px;color:#5a7a5a;margin-bottom:3px;}
+  .day-cell.today .day-num{font-weight:700;color:#3a7a3a;}
+  .chip{border-radius:6px;padding:2px 6px;font-size:10px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;margin-bottom:2px;}
+  .more{font-size:9px;color:#9aaa9a;padding-left:4px;}
+
+  /* Legenda */
+  .legend{padding:0 20px 32px;display:flex;gap:12px;flex-wrap:wrap;}
+  .legend-item{display:flex;align-items:center;gap:5px;font-size:12px;color:#5a7a5a;}
+  .legend-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0;}
+
+  /* Modal overlay */
+  .modal-overlay{position:fixed;inset:0;background:#00000055;display:flex;align-items:center;justify-content:center;z-index:200;padding:16px;}
+  .modal-box{background:#fff;border-radius:18px;padding:28px 24px;width:100%;max-width:420px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px #00000030;}
+  .modal-label{font-size:11px;color:#7a9e7a;font-weight:600;letter-spacing:1px;margin-bottom:6px;display:block;}
+  .modal-title{font-size:20px;font-weight:600;color:#1a2e1a;font-family:'Lora',serif;margin-bottom:20px;}
+  .modal-sub{font-size:11px;color:#7a9e7a;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;}
+  select,input[type=text]{border:1.5px solid #d4e6d4;border-radius:8px;padding:9px 12px;width:100%;margin-bottom:14px;font-size:14px;background:#fafcfa;font-family:inherit;}
+  select:focus,input:focus{outline:2px solid #3a7a3a;outline-offset:1px;}
+  .btn-row{display:flex;gap:10px;margin-top:8px;}
+  .btn-green{background:#3a7a3a;color:#fff;border:none;border-radius:10px;padding:11px 20px;font-size:14px;cursor:pointer;font-family:inherit;font-weight:600;flex:1;}
+  .btn-outline{background:#fff;color:#3a7a3a;border:1.5px solid #3a7a3a;border-radius:10px;padding:10px 20px;font-size:14px;cursor:pointer;font-family:inherit;flex:1;}
+  .btn-red{background:#fee2e2;color:#dc2626;border:none;border-radius:10px;padding:10px 14px;font-size:14px;cursor:pointer;font-family:inherit;}
+  .visit-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;margin-bottom:8px;}
+  .visit-bar{width:4px;height:36px;border-radius:2px;flex-shrink:0;}
+  .visit-name{font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .visit-sub{font-size:12px;color:#7a9e7a;}
+  .icon-btn{background:none;border:none;cursor:pointer;font-size:16px;color:#aaa;padding:4px;}
+  .empty{text-align:center;color:#9aaa9a;padding:24px 0;font-size:14px;}
+  .sync-badge{font-size:11px;padding:3px 10px;border-radius:20px;background:#f0f7f0;color:#5a8a5a;}
+  .sync-badge.saving{background:#fef9c3;color:#a16207;}
+  .loading{text-align:center;padding:60px 20px;color:#7a9e7a;font-size:15px;}
+</style>
+</head>
+<body>
+
+<!-- Login -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-label">Contexto Rural</div>
+    <div class="login-title">Calendário de Visitas</div>
+    <div class="login-sub">Quem és tu?</div>
+    <div id="user-list"><button class="user-btn"><span style="font-size:18px">🌿</span>Catarina<span class="user-role">Técnico</span></button><button class="user-btn"><span style="font-size:18px">🌿</span>Cláudia<span class="user-role">Técnico</span></button><button class="user-btn"><span style="font-size:18px">🌿</span>Francisco<span class="user-role">Técnico</span></button><button class="user-btn"><span style="font-size:18px">🌿</span>Josefa<span class="user-role">Técnico</span></button><button class="user-btn"><span style="font-size:18px">🌿</span>Tomás<span class="user-role">Técnico</span></button><button class="user-btn gestor"><span style="font-size:18px">📋</span>Angela<span class="user-role">Gestor</span></button><button class="user-btn gestor"><span style="font-size:18px">📋</span>Bruno<span class="user-role">Gestor</span></button><button class="user-btn gestor"><span style="font-size:18px">📋</span>Carla<span class="user-role">Gestor</span></button></div>
+  </div>
+</div>
+
+<!-- App -->
+<div id="app">
+  <div class="header">
+    <div class="header-info">
+      <div class="header-brand">Contexto Rural</div>
+      <div class="header-title">Calendário de Visitas 2026</div>
+    </div>
+    <span id="sync-badge" class="sync-badge">● Em linha</span>
+    <span id="user-chip" class="user-chip"></span>
+    <button class="logout-btn" onclick="logout()">Sair</button>
+  </div>
+
+  <div class="month-nav">
+    <button class="nav-btn" onclick="changeMonth(-1)">‹</button>
+    <div id="month-title" class="month-title"></div>
+    <button class="nav-btn" onclick="changeMonth(1)">›</button>
+    <div id="visit-count" class="visit-count"></div>
+  </div>
+
+  <div class="filters" id="filters"></div>
+
+  <div class="cal-wrap">
+    <div class="weekdays">
+      <div class="weekday">DOM</div><div class="weekday">SEG</div>
+      <div class="weekday">TER</div><div class="weekday">QUA</div>
+      <div class="weekday">QUI</div><div class="weekday">SEX</div>
+      <div class="weekday">SÁB</div>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
+  </div>
+
+  <div class="legend" id="legend"></div>
+</div>
+
+<!-- Modal dia -->
+<div class="modal-overlay" id="modal-day" style="display:none" onclick="if(event.target===this)closeModal(&#39;modal-day&#39;)">
+  <div class="modal-box">
+    <div id="modal-day-header"></div>
+    <div id="modal-day-visits"></div>
+    <div class="btn-row">
+      <button class="btn-outline" onclick="closeModal(&#39;modal-day&#39;)">Fechar</button>
+      <button class="btn-green" onclick="openAdd()">+ Visita</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal adicionar -->
+<div class="modal-overlay" id="modal-add" style="display:none" onclick="if(event.target===this)closeModal(&#39;modal-add&#39;)">
+  <div class="modal-box">
+    <div class="modal-title">Nova visita</div>
+    <label class="modal-label">HERDADE</label>
+    <select id="add-herdade"></select>
+    <label class="modal-label">TÉCNICO</label>
+    <select id="add-tecnico"></select>
+    <div class="btn-row">
+      <button class="btn-outline" onclick="closeModal(&#39;modal-add&#39;)">Cancelar</button>
+      <button class="btn-green" onclick="saveAdd()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal editar -->
+<div class="modal-overlay" id="modal-edit" style="display:none" onclick="if(event.target===this)closeModal(&#39;modal-edit&#39;)">
+  <div class="modal-box">
+    <div class="modal-title">Editar visita</div>
+    <input type="hidden" id="edit-id">
+    <label class="modal-label">HERDADE</label>
+    <select id="edit-herdade"></select>
+    <label class="modal-label">TÉCNICO</label>
+    <select id="edit-tecnico"></select>
+    <div class="btn-row">
+      <button class="btn-red" onclick="deleteVisit()">Eliminar</button>
+      <button class="btn-outline" onclick="closeModal(&#39;modal-edit&#39;)">Cancelar</button>
+      <button class="btn-green" onclick="saveEdit()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+// ── Config Firebase ────────────────────────────────────────────────────────
+const firebaseConfig = {
+  apiKey: "AIzaSyDdGgVBZclMss-e5fMQpKfBQTN_2u4b8iE",
+  authDomain: "contexto-rural.firebaseapp.com",
+  projectId: "contexto-rural",
+  storageBucket: "contexto-rural.firebasestorage.app",
+  messagingSenderId: "1059433527922",
+  appId: "1:1059433527922:web:c39a839b610e88908760eb"
+};
+
+const fireApp = initializeApp(firebaseConfig);
+const db = getFirestore(fireApp);
+
+// ── Dados ──────────────────────────────────────────────────────────────────
+const TECNICOS = ["Catarina","Cláudia","Francisco","Josefa","Tomás"];
+const GESTORES = ["Angela","Bruno","Carla"];
+const TODOS = [...TECNICOS, ...GESTORES];
+const MESES = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+const MONTH_MAP = {jan:0,fev:1,mar:2,abr:3,mai:4,jun:5,jul:6,ago:7,set:8,out:9,nov:10,dez:11};
+
+const TECNICO_COLORS = {
+  "Catarina":  {bg:"#fef3c7",border:"#f59e0b",text:"#92400e"},
+  "Cláudia":   {bg:"#dbeafe",border:"#3b82f6",text:"#1e3a8a"},
+  "Francisco": {bg:"#d1fae5",border:"#10b981",text:"#064e3b"},
+  "Josefa":    {bg:"#fce7f3",border:"#ec4899",text:"#831843"},
+  "Tomás":     {bg:"#ede9fe",border:"#8b5cf6",text:"#4c1d95"},
+};
+const DEFAULT_COLOR = {bg:"#f1f5f9",border:"#94a3b8",text:"#334155"};
+
+const INITIAL_VISITS = [{"id":"DT01_1_Cláudia_2","clientId":"DT01","group":"Banzas","herdade":"Agro Vale Longo","date":"12/mai","tecnico":"Cláudia"},{"id":"DT01_4_Francisco_2","clientId":"DT01","group":"Banzas","herdade":"Agro Vale Longo","date":"15/mai","tecnico":"Francisco"},{"id":"DT01_16_Cláudia_2","clientId":"DT01","group":"Banzas","herdade":"Agro Vale Longo","date":"27/mai","tecnico":"Cláudia"},{"id":"DT01_1_Cláudia_3","clientId":"DT01","group":"Banzas","herdade":"Assarias e Serro","date":"12/mai","tecnico":"Cláudia"},{"id":"DT01_4_Francisco_3","clientId":"DT01","group":"Banzas","herdade":"Assarias e Serro","date":"15/mai","tecnico":"Francisco"},{"id":"DT01_9_Cláudia_3","clientId":"DT01","group":"Banzas","herdade":"Assarias e Serro","date":"20/mai","tecnico":"Cláudia"},{"id":"DT01_0_Cláudia_5","clientId":"DT01","group":"Banzas","herdade":"Herdade Misericórdia","date":"11/mai","tecnico":"Cláudia"},{"id":"DT01_10_Cláudia_5","clientId":"DT01","group":"Banzas","herdade":"Herdade Misericórdia","date":"21/mai","tecnico":"Cláudia"},{"id":"DT01_1_Cláudia_6","clientId":"DT01","group":"Banzas","herdade":"Monte Bonanza","date":"12/mai","tecnico":"Cláudia"},{"id":"DT01_9_Francisco_6","clientId":"DT01","group":"Banzas","herdade":"Monte Bonanza","date":"20/mai","tecnico":"Francisco"},{"id":"DT01_3_Cláudia_7","clientId":"DT01","group":"Banzas","herdade":"Monte da Barca","date":"14/mai","tecnico":"Cláudia"},{"id":"DT01_3_Tomás_7","clientId":"DT01","group":"Banzas","herdade":"Monte da Barca","date":"14/mai","tecnico":"Tomás"},{"id":"DT01_1_Cláudia_8","clientId":"DT01","group":"Banzas","herdade":"Pivot Monte Acima","date":"12/mai","tecnico":"Cláudia"},{"id":"DT01_9_Cláudia_9","clientId":"DT01","group":"Banzas","herdade":"Pivot Montes Velhos Sul","date":"20/mai","tecnico":"Cláudia"},{"id":"DT01_4_Cláudia_10","clientId":"DT01","group":"Banzas","herdade":"Pivot Santa Vitória","date":"15/mai","tecnico":"Cláudia"},{"id":"DT01_11_Francisco_10","clientId":"DT01","group":"Banzas","herdade":"Pivot Santa Vitória","date":"22/mai","tecnico":"Francisco"},{"id":"DT01_16_Cláudia_10","clientId":"DT01","group":"Banzas","herdade":"Pivot Santa Vitória","date":"27/mai","tecnico":"Cláudia"},{"id":"DT02_2_Catarina_11","clientId":"DT02","group":"Casa Agrícola Alexandre Relvas","herdade":"Herdade da Passareira","date":"13/mai","tecnico":"Catarina"},{"id":"DT02_8_Francisco_11","clientId":"DT02","group":"Casa Agrícola Alexandre Relvas","herdade":"Herdade da Passareira","date":"19/mai","tecnico":"Francisco"},{"id":"DT02_15_Catarina_11","clientId":"DT02","group":"Casa Agrícola Alexandre Relvas","herdade":"Herdade da Passareira","date":"26/mai","tecnico":"Catarina"},{"id":"DT02_2_Catarina_12","clientId":"DT02","group":"Casa Agrícola Alexandre Relvas","herdade":"Herdade da Quintinha","date":"13/mai","tecnico":"Catarina"},{"id":"DT02_8_Francisco_12","clientId":"DT02","group":"Casa Agrícola Alexandre Relvas","herdade":"Herdade da Quintinha","date":"19/mai","tecnico":"Francisco"},{"id":"DT02_15_Catarina_12","clientId":"DT02","group":"Casa Agrícola Alexandre Relvas","herdade":"Herdade da Quintinha","date":"26/mai","tecnico":"Catarina"},{"id":"DT02_2_Catarina_13","clientId":"DT02","group":"Casa Agrícola Alexandre Relvas","herdade":"Herdade das Terras Frias","date":"13/mai","tecnico":"Catarina"},{"id":"DT02_8_Francisco_13","clientId":"DT02","group":"Casa Agrícola Alexandre Relvas","herdade":"Herdade das Terras Frias","date":"19/mai","tecnico":"Francisco"},{"id":"DT02_1_Catarina_14","clientId":"DT02","group":"Casa Agrícola Alexandre Relvas","herdade":"Herdade do Cabido","date":"12/mai","tecnico":"Catarina"},{"id":"DT02_7_Francisco_14","clientId":"DT02","group":"Casa Agrícola Alexandre Relvas","herdade":"Herdade do Cabido","date":"18/mai","tecnico":"Francisco"},{"id":"DT02_8_Josefa_14","clientId":"DT02","group":"Casa Agrícola Alexandre Relvas","herdade":"Herdade do Cabido","date":"19/mai","tecnico":"Josefa"},{"id":"DT02_17_Catarina_14","clientId":"DT02","group":"Casa Agrícola Alexandre Relvas","herdade":"Herdade do Cabido","date":"28/mai","tecnico":"Catarina"},{"id":"DT03_8_Cláudia_15","clientId":"DT03","group":"Paulo Cabral","herdade":"Herdade do Monte Ruivo","date":"19/mai","tecnico":"Cláudia"},{"id":"DT03_14_Cláudia_15","clientId":"DT03","group":"Paulo Cabral","herdade":"Herdade do Monte Ruivo","date":"25/mai","tecnico":"Cláudia"},{"id":"DT04_2_Josefa_16","clientId":"DT04","group":"Rabala- Núcleo Avis","herdade":"Alcatruz","date":"13/mai","tecnico":"Josefa"},{"id":"DT04_2_Josefa_17","clientId":"DT04","group":"Rabala- Núcleo Avis","herdade":"Capela","date":"13/mai","tecnico":"Josefa"},{"id":"DT04_2_Josefa_18","clientId":"DT04","group":"Rabala- Núcleo Avis","herdade":"Escola e Balsa","date":"13/mai","tecnico":"Josefa"},{"id":"DT04_2_Josefa_19","clientId":"DT04","group":"Rabala- Núcleo Avis","herdade":"Felismino","date":"13/mai","tecnico":"Josefa"},{"id":"DT04_4_Francisco_20","clientId":"DT04","group":"Rabala-Núcleo Beja","herdade":"Herdade da Capelinha e Assarias","date":"15/mai","tecnico":"Francisco"},{"id":"DT04_9_Cláudia_20","clientId":"DT04","group":"Rabala-Núcleo Beja","herdade":"Herdade da Capelinha e Assarias","date":"20/mai","tecnico":"Cláudia"},{"id":"DT04_2_Josefa_21","clientId":"DT04","group":"Rabala- Núcleo Avis","herdade":"Herdade da Seixa","date":"13/mai","tecnico":"Josefa"},{"id":"DT04_2_Francisco_22","clientId":"DT04","group":"Rabala-Núcleo Beja","herdade":"Herdade das Pontes","date":"13/mai","tecnico":"Francisco"},{"id":"DT04_8_Catarina_22","clientId":"DT04","group":"Rabala-Núcleo Beja","herdade":"Herdade das Pontes","date":"19/mai","tecnico":"Catarina"},{"id":"DT04_2_Francisco_23","clientId":"DT04","group":"Rabala-Núcleo Beja","herdade":"Herdade das Rosas","date":"13/mai","tecnico":"Francisco"},{"id":"DT04_8_Catarina_23","clientId":"DT04","group":"Rabala-Núcleo Beja","herdade":"Herdade das Rosas","date":"19/mai","tecnico":"Catarina"},{"id":"DT04_8_Josefa_24","clientId":"DT04","group":"Rabala- Núcleo Avis","herdade":"Herdade de Camões","date":"19/mai","tecnico":"Josefa"},{"id":"DT04_2_Josefa_25","clientId":"DT04","group":"Rabala- Núcleo Avis","herdade":"Herdade de Vale de Baleia","date":"13/mai","tecnico":"Josefa"},{"id":"DT04_2_Josefa_26","clientId":"DT04","group":"Rabala- Núcleo Avis","herdade":"Herdade do Contador","date":"13/mai","tecnico":"Josefa"},{"id":"DT04_2_Francisco_27","clientId":"DT04","group":"Rabala-Núcleo Beja","herdade":"Herdade dos Lúzios","date":"13/mai","tecnico":"Francisco"},{"id":"DT04_8_Catarina_27","clientId":"DT04","group":"Rabala-Núcleo Beja","herdade":"Herdade dos Lúzios","date":"19/mai","tecnico":"Catarina"},{"id":"DT04_2_Josefa_28","clientId":"DT04","group":"Rabala- Núcleo Avis","herdade":"Javardinho","date":"13/mai","tecnico":"Josefa"},{"id":"DT04_2_Josefa_29","clientId":"DT04","group":"Rabala- Núcleo Avis","herdade":"Monte do Ramalho","date":"13/mai","tecnico":"Josefa"},{"id":"DT04_2_Josefa_30","clientId":"DT04","group":"Rabala- Núcleo Avis","herdade":"Ramalho","date":"13/mai","tecnico":"Josefa"},{"id":"DT04_2_Josefa_31","clientId":"DT04","group":"Rabala- Núcleo Avis","herdade":"Varzeas do Ramalho","date":"13/mai","tecnico":"Josefa"},{"id":"DT05_0_Cláudia_32","clientId":"DT05","group":"LMC","herdade":"Herdade da Carvalheira","date":"11/mai","tecnico":"Cláudia"},{"id":"DT05_11_Francisco_32","clientId":"DT05","group":"LMC","herdade":"Herdade da Carvalheira","date":"22/mai","tecnico":"Francisco"},{"id":"DT05_4_Francisco_33","clientId":"DT05","group":"LMC","herdade":"Herdade das Pincanheiras","date":"15/mai","tecnico":"Francisco"},{"id":"DT05_11_Francisco_33","clientId":"DT05","group":"LMC","herdade":"Herdade das Pincanheiras","date":"22/mai","tecnico":"Francisco"},{"id":"DT05_10_Cláudia_34","clientId":"DT05","group":"LMC","herdade":"Herdade de Monte Ruivo","date":"21/mai","tecnico":"Cláudia"},{"id":"DT05_0_Cláudia_35","clientId":"DT05","group":"LMC","herdade":"Herdade de Oliveirinha","date":"11/mai","tecnico":"Cláudia"},{"id":"DT05_11_Francisco_35","clientId":"DT05","group":"LMC","herdade":"Herdade de Oliveirinha","date":"22/mai","tecnico":"Francisco"},{"id":"DT05_0_Cláudia_36","clientId":"DT05","group":"LMC","herdade":"Herdade de São Vicente","date":"11/mai","tecnico":"Cláudia"},{"id":"DT05_10_Catarina_37","clientId":"DT05","group":"LMC","herdade":"Herdade do Pereiro","date":"21/mai","tecnico":"Catarina"},{"id":"DT06_2_Cláudia_38","clientId":"DT06","group":"Camposul","herdade":"Herdade da Lobatinha","date":"13/mai","tecnico":"Cláudia"},{"id":"DT06_10_Francisco_38","clientId":"DT06","group":"Camposul","herdade":"Herdade da Lobatinha","date":"21/mai","tecnico":"Francisco"},{"id":"DT06_1_Catarina_39","clientId":"DT06","group":"Camposul","herdade":"Herdade da Raposeira","date":"12/mai","tecnico":"Catarina"},{"id":"DT06_7_Francisco_39","clientId":"DT06","group":"Camposul","herdade":"Herdade da Raposeira","date":"18/mai","tecnico":"Francisco"},{"id":"DT06_17_Catarina_39","clientId":"DT06","group":"Camposul","herdade":"Herdade da Raposeira","date":"28/mai","tecnico":"Catarina"},{"id":"DT06_7_Cláudia_40","clientId":"DT06","group":"Camposul","herdade":"Herdade do Carrascal","date":"18/mai","tecnico":"Cláudia"},{"id":"DT06_14_Josefa_40","clientId":"DT06","group":"Camposul","herdade":"Herdade do Carrascal","date":"25/mai","tecnico":"Josefa"},{"id":"DT07_7_Cláudia_42","clientId":"DT07","group":"Sinvepart","herdade":"Herdade da Faleira","date":"18/mai","tecnico":"Cláudia"},{"id":"DT07_4_Cláudia_43","clientId":"DT07","group":"Sinvepart","herdade":"Herdade das Marzalonas","date":"15/mai","tecnico":"Cláudia"},{"id":"DT07_11_Cláudia_43","clientId":"DT07","group":"Sinvepart","herdade":"Herdade das Marzalonas","date":"22/mai","tecnico":"Cláudia"},{"id":"DT07_7_Cláudia_44","clientId":"DT07","group":"Sinvepart","herdade":"Herdade do Balhamim","date":"18/mai","tecnico":"Cláudia"},{"id":"DT08_2_Tomás_45","clientId":"DT08","group":"Envero","herdade":"Herdade do Monte Branco","date":"13/mai","tecnico":"Tomás"},{"id":"DT08_8_Tomás_45","clientId":"DT08","group":"Envero","herdade":"Herdade do Monte Branco","date":"19/mai","tecnico":"Tomás"},{"id":"DT08_14_Catarina_45","clientId":"DT08","group":"Envero","herdade":"Herdade do Monte Branco","date":"25/mai","tecnico":"Catarina"},{"id":"DT08_2_Tomás_46","clientId":"DT08","group":"Envero","herdade":"Herdade dos Nabos de Baixo","date":"13/mai","tecnico":"Tomás"},{"id":"DT08_8_Tomás_46","clientId":"DT08","group":"Envero","herdade":"Herdade dos Nabos de Baixo","date":"19/mai","tecnico":"Tomás"},{"id":"DT08_14_Catarina_46","clientId":"DT08","group":"Envero","herdade":"Herdade dos Nabos de Baixo","date":"25/mai","tecnico":"Catarina"},{"id":"DT08_2_Tomás_47","clientId":"DT08","group":"Envero","herdade":"Herdade dos Nabos de Cima","date":"13/mai","tecnico":"Tomás"},{"id":"DT08_8_Tomás_47","clientId":"DT08","group":"Envero","herdade":"Herdade dos Nabos de Cima","date":"19/mai","tecnico":"Tomás"},{"id":"DT08_14_Catarina_47","clientId":"DT08","group":"Envero","herdade":"Herdade dos Nabos de Cima","date":"25/mai","tecnico":"Catarina"},{"id":"DT10_3_Catarina_48","clientId":"DT10","group":"Carrilho Ramos","herdade":"Herdade Monte Espada","date":"14/mai","tecnico":"Catarina"},{"id":"DT11_1_Cláudia_49","clientId":"DT11","group":"Terrolivo","herdade":"Herdade do Monte Novo","date":"12/mai","tecnico":"Cláudia"},{"id":"DT11_16_Cláudia_49","clientId":"DT11","group":"Terrolivo","herdade":"Herdade do Monte Novo","date":"27/mai","tecnico":"Cláudia"},{"id":"DT11_1_Cláudia_50","clientId":"DT11","group":"Terrolivo","herdade":"Herdade do Montinho","date":"12/mai","tecnico":"Cláudia"},{"id":"DT11_16_Cláudia_50","clientId":"DT11","group":"Terrolivo","herdade":"Herdade do Montinho","date":"27/mai","tecnico":"Cláudia"},{"id":"DT12_4_Cláudia_51","clientId":"DT12","group":"Vistosas Planícies","herdade":"Herdade da Chaminé e Lobata","date":"15/mai","tecnico":"Cláudia"},{"id":"DT12_11_Cláudia_51","clientId":"DT12","group":"Vistosas Planícies","herdade":"Herdade da Chaminé e Lobata","date":"22/mai","tecnico":"Cláudia"},{"id":"DT12_16_Cláudia_51","clientId":"DT12","group":"Vistosas Planícies","herdade":"Herdade da Chaminé e Lobata","date":"27/mai","tecnico":"Cláudia"},{"id":"DT13_2_Cláudia_52","clientId":"DT13","group":"João Gato","herdade":"Herdade da Raposeira e Pinheiro","date":"13/mai","tecnico":"Cláudia"},{"id":"DT13_10_Francisco_52","clientId":"DT13","group":"João Gato","herdade":"Herdade da Raposeira e Pinheiro","date":"21/mai","tecnico":"Francisco"},{"id":"DT14_1_Catarina_53","clientId":"DT14","group":"Herdade Grande","herdade":"Herdade Grande","date":"12/mai","tecnico":"Catarina"},{"id":"DT14_8_Francisco_53","clientId":"DT14","group":"Herdade Grande","herdade":"Herdade Grande","date":"19/mai","tecnico":"Francisco"},{"id":"DT15_11_Cláudia_54","clientId":"DT15","group":"Carlos Soares","herdade":"Herdade da Fonte Nova","date":"22/mai","tecnico":"Cláudia"},{"id":"DT15_11_Francisco_55","clientId":"DT15","group":"Carlos Soares","herdade":"Herdade de Valdouro","date":"22/mai","tecnico":"Francisco"},{"id":"DT15_9_Francisco_56","clientId":"DT15","group":"Carlos Soares","herdade":"Herdade do Estanque","date":"20/mai","tecnico":"Francisco"},{"id":"DT16_7_Catarina_57","clientId":"DT16","group":"Agroliven","herdade":"Herdade da Malhada Velha","date":"18/mai","tecnico":"Catarina"},{"id":"DT16_11_Tomás_57","clientId":"DT16","group":"Agroliven","herdade":"Herdade da Malhada Velha","date":"22/mai","tecnico":"Tomás"},{"id":"DT16_7_Catarina_58","clientId":"DT16","group":"Agroliven","herdade":"Herdade da Panasqueira","date":"18/mai","tecnico":"Catarina"},{"id":"DT16_11_Tomás_58","clientId":"DT16","group":"Agroliven","herdade":"Herdade da Panasqueira","date":"22/mai","tecnico":"Tomás"},{"id":"DT16_7_Catarina_59","clientId":"DT16","group":"Agroliven","herdade":"Herdade Vale de Águia","date":"18/mai","tecnico":"Catarina"},{"id":"DT16_11_Tomás_59","clientId":"DT16","group":"Agroliven","herdade":"Herdade Vale de Águia","date":"22/mai","tecnico":"Tomás"},{"id":"DT16_7_Catarina_60","clientId":"DT16","group":"Agroliven","herdade":"Malhada Velha","date":"18/mai","tecnico":"Catarina"},{"id":"DT16_11_Tomás_60","clientId":"DT16","group":"Agroliven","herdade":"Malhada Velha","date":"22/mai","tecnico":"Tomás"},{"id":"DT16_1_Tomás_61","clientId":"DT16","group":"Agroliven","herdade":"Malhada Velha III","date":"12/mai","tecnico":"Tomás"},{"id":"DT16_7_Catarina_61","clientId":"DT16","group":"Agroliven","herdade":"Malhada Velha III","date":"18/mai","tecnico":"Catarina"},{"id":"DT16_11_Tomás_61","clientId":"DT16","group":"Agroliven","herdade":"Malhada Velha III","date":"22/mai","tecnico":"Tomás"},{"id":"DT17_2_Josefa_62","clientId":"DT17","group":"Urbigav","herdade":"Herdade Vale de Junco","date":"13/mai","tecnico":"Josefa"},{"id":"DT18_1_Cláudia_63","clientId":"DT18","group":"Jorge Saúde","herdade":"Herdade do Brejo","date":"12/mai","tecnico":"Cláudia"},{"id":"DT18_9_Francisco_63","clientId":"DT18","group":"Jorge Saúde","herdade":"Herdade do Brejo","date":"20/mai","tecnico":"Francisco"},{"id":"DT19_8_Catarina_64","clientId":"DT19","group":"Marco Rodrigues","herdade":"Herdade de Vale de Aradas","date":"19/mai","tecnico":"Catarina"},{"id":"DT20_1_Cláudia_65","clientId":"DT20","group":"Monte Barrocas","herdade":"Herdade Monte Barrocas","date":"12/mai","tecnico":"Cláudia"},{"id":"DT20_9_Francisco_65","clientId":"DT20","group":"Monte Barrocas","herdade":"Herdade Monte Barrocas","date":"20/mai","tecnico":"Francisco"},{"id":"DT21_3_Josefa_66","clientId":"DT21","group":"Dfesa da Junceira","herdade":"Herdade Defesa da Junceira","date":"14/mai","tecnico":"Josefa"},{"id":"DT21_3_Francisco_66","clientId":"DT21","group":"Dfesa da Junceira","herdade":"Herdade Defesa da Junceira","date":"14/mai","tecnico":"Francisco"},{"id":"DT22_8_Josefa_67","clientId":"DT22","group":"Ribeira dos Pombos","herdade":"Herdade da Ordem","date":"19/mai","tecnico":"Josefa"},{"id":"DT22_8_Josefa_68","clientId":"DT22","group":"Ribeira dos Pombos","herdade":"Herdade de Monporcão","date":"19/mai","tecnico":"Josefa"},{"id":"DT22_0_Josefa_69","clientId":"DT22","group":"Ribeira dos Pombos","herdade":"Herdade do Alcaide","date":"11/mai","tecnico":"Josefa"},{"id":"DT22_0_Tomás_69","clientId":"DT22","group":"Ribeira dos Pombos","herdade":"Herdade do Alcaide","date":"11/mai","tecnico":"Tomás"},{"id":"DT22_7_Tomás_69","clientId":"DT22","group":"Ribeira dos Pombos","herdade":"Herdade do Alcaide","date":"18/mai","tecnico":"Tomás"},{"id":"DT22_0_Josefa_70","clientId":"DT22","group":"Ribeira dos Pombos","herdade":"Herdade do Melo","date":"11/mai","tecnico":"Josefa"},{"id":"DT22_0_Tomás_70","clientId":"DT22","group":"Ribeira dos Pombos","herdade":"Herdade do Melo","date":"11/mai","tecnico":"Tomás"},{"id":"DT22_7_Tomás_70","clientId":"DT22","group":"Ribeira dos Pombos","herdade":"Herdade do Melo","date":"18/mai","tecnico":"Tomás"},{"id":"DT22_2_Josefa_71","clientId":"DT22","group":"Ribeira dos Pombos","herdade":"Herdade Fonte Ferreira","date":"13/mai","tecnico":"Josefa"},{"id":"DT25_2_Francisco_73","clientId":"DT25","group":"Casa Agrícola José Reliquias","herdade":"Herdade do Estacal","date":"13/mai","tecnico":"Francisco"},{"id":"DT25_8_Catarina_73","clientId":"DT25","group":"Casa Agrícola José Reliquias","herdade":"Herdade do Estacal","date":"19/mai","tecnico":"Catarina"},{"id":"DT26_1_Tomás_74","clientId":"DT26","group":"Terras de São José Botas","herdade":"Terras de São José Botas","date":"12/mai","tecnico":"Tomás"},{"id":"DT26_3_Catarina_74","clientId":"DT26","group":"Terras de São José Botas","herdade":"Terras de São José Botas","date":"14/mai","tecnico":"Catarina"},{"id":"DT26_7_Catarina_74","clientId":"DT26","group":"Terras de São José Botas","herdade":"Terras de São José Botas","date":"18/mai","tecnico":"Catarina"},{"id":"DT26_11_Tomás_74","clientId":"DT26","group":"Terras de São José Botas","herdade":"Terras de São José Botas","date":"22/mai","tecnico":"Tomás"},{"id":"DT27_1_Josefa_75","clientId":"DT27","group":"Top Olive","herdade":"Herdade do Pizarro","date":"12/mai","tecnico":"Josefa"},{"id":"DT27_16_Catarina_75","clientId":"DT27","group":"Top Olive","herdade":"Herdade do Pizarro","date":"27/mai","tecnico":"Catarina"},{"id":"DT28_2_Cláudia_76","clientId":"DT28","group":"LMC","herdade":"Herdade de Garfanes","date":"13/mai","tecnico":"Cláudia"},{"id":"DT28_10_Francisco_76","clientId":"DT28","group":"LMC","herdade":"Herdade de Garfanes","date":"21/mai","tecnico":"Francisco"},{"id":"GI01_2_Tomás_77","clientId":"GI01","group":"Monte Serrano","herdade":"Monte Serrano","date":"13/mai","tecnico":"Tomás"},{"id":"GI01_8_Tomás_77","clientId":"GI01","group":"Monte Serrano","herdade":"Monte Serrano","date":"19/mai","tecnico":"Tomás"},{"id":"GI01_14_Catarina_77","clientId":"GI01","group":"Monte Serrano","herdade":"Monte Serrano","date":"25/mai","tecnico":"Catarina"},{"id":"GI02_3_Catarina_78","clientId":"GI02","group":"Button Espanha","herdade":"Herdade da Brusanz","date":"14/mai","tecnico":"Catarina"},{"id":"GI02_10_Catarina_78","clientId":"GI02","group":"Button Espanha","herdade":"Herdade da Brusanz","date":"21/mai","tecnico":"Catarina"},{"id":"GI02_14_Tomás_78","clientId":"GI02","group":"Button Espanha","herdade":"Herdade da Brusanz","date":"25/mai","tecnico":"Tomás"},{"id":"GI02_0_Cláudia_79","clientId":"GI02","group":"Button Espanha","herdade":"Herdade da Fonte Boa","date":"11/mai","tecnico":"Cláudia"},{"id":"GI02_1_Tomás_79","clientId":"GI02","group":"Button Espanha","herdade":"Herdade da Fonte Boa","date":"12/mai","tecnico":"Tomás"},{"id":"GI02_4_Francisco_79","clientId":"GI02","group":"Button Espanha","herdade":"Herdade da Fonte Boa","date":"15/mai","tecnico":"Francisco"},{"id":"GI02_10_Cláudia_79","clientId":"GI02","group":"Button Espanha","herdade":"Herdade da Fonte Boa","date":"21/mai","tecnico":"Cláudia"},{"id":"GI02_15_Cláudia_79","clientId":"GI02","group":"Button Espanha","herdade":"Herdade da Fonte Boa","date":"26/mai","tecnico":"Cláudia"},{"id":"GI03_3_Cláudia_80","clientId":"GI03","group":"Ribeira dos Pombos","herdade":"Herdade do Álamo","date":"14/mai","tecnico":"Cláudia"},{"id":"GI03_3_Tomás_80","clientId":"GI03","group":"Ribeira dos Pombos","herdade":"Herdade do Álamo","date":"14/mai","tecnico":"Tomás"},{"id":"GI03_8_Cláudia_80","clientId":"GI03","group":"Ribeira dos Pombos","herdade":"Herdade do Álamo","date":"19/mai","tecnico":"Cláudia"},{"id":"GI03_9_Tomás_80","clientId":"GI03","group":"Ribeira dos Pombos","herdade":"Herdade do Álamo","date":"20/mai","tecnico":"Tomás"},{"id":"GI03_10_Josefa_80","clientId":"GI03","group":"Ribeira dos Pombos","herdade":"Herdade do Álamo","date":"21/mai","tecnico":"Josefa"},{"id":"GI03_14_Cláudia_80","clientId":"GI03","group":"Ribeira dos Pombos","herdade":"Herdade do Álamo","date":"25/mai","tecnico":"Cláudia"},{"id":"GI03_9_Tomás_81","clientId":"GI03","group":"Ribeira dos Pombos","herdade":"Herdade do Poço da Rua","date":"20/mai","tecnico":"Tomás"},{"id":"GI03_2_Tomás_82","clientId":"GI03","group":"Ribeira dos Pombos","herdade":"Herdade do Xacafre","date":"13/mai","tecnico":"Tomás"},{"id":"GI03_8_Tomás_82","clientId":"GI03","group":"Ribeira dos Pombos","herdade":"Herdade do Xacafre","date":"19/mai","tecnico":"Tomás"},{"id":"GI03_9_Francisco_82","clientId":"GI03","group":"Ribeira dos Pombos","herdade":"Herdade do Xacafre","date":"20/mai","tecnico":"Francisco"},{"id":"GI03_10_Tomás_82","clientId":"GI03","group":"Ribeira dos Pombos","herdade":"Herdade do Xacafre","date":"21/mai","tecnico":"Tomás"}];
+
+const HERDADES = [...new Set(INITIAL_VISITS.map(v=>v.herdade))].sort();
+const HERDADE_GRUPO = {};
+INITIAL_VISITS.forEach(v => { HERDADE_GRUPO[v.herdade] = v.group; });
+
+// ── Estado ─────────────────────────────────────────────────────────────────
+let currentUser = null;
+let visits = [];
+let month = 4; // Maio
+const year = 2026;
+let filterTecnico = "Todos";
+let selectedDay = null;
+let unsubscribe = null;
+let initialized = false;
+
+// ── Login ──────────────────────────────────────────────────────────────────
+const userList = document.getElementById('user-list');
+TODOS.forEach(u => {
+  const btn = document.createElement('button');
+  btn.className = 'user-btn' + (GESTORES.includes(u) ? ' gestor' : '');
+  btn.innerHTML = `<span style="font-size:18px">${TECNICOS.includes(u)?'🌿':'📋'}</span>${u}<span class="user-role">${TECNICOS.includes(u)?'Técnico':'Gestor'}</span>`;
+  btn.onclick = () => loginAs(u);
+  userList.appendChild(btn);
+});
+
+function loginAs(u) {
+  currentUser = u;
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('user-chip').textContent = u + (TECNICOS.includes(u) ? ' 🌿' : ' 📋');
+  startListening();
+  renderFilters();
+  renderLegend();
+  renderCalendar();
+}
+
+function logout() {
+  if (unsubscribe) unsubscribe();
+  currentUser = null;
+  initialized = false;
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+}
+
+// ── Firebase listener ──────────────────────────────────────────────────────
+function setSyncBadge(state) {
+  const b = document.getElementById('sync-badge');
+  if (state === 'saving') { b.textContent = '● A guardar…'; b.className = 'sync-badge saving'; }
+  else { b.textContent = '● Em linha'; b.className = 'sync-badge'; }
+}
+
+async function startListening() {
+  const colRef = collection(db, 'visits');
+
+  // Se primeira vez, carrega dados iniciais
+  const metaRef = doc(db, 'meta', 'initialized');
+  try {
+    const { getDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+    const metaSnap = await getDoc(metaRef);
+    if (!metaSnap.exists()) {
+      setSyncBadge('saving');
+      // Carrega visitas iniciais do Excel
+      for (const v of INITIAL_VISITS) {
+        await setDoc(doc(db, 'visits', v.id), v);
+      }
+      await setDoc(metaRef, { initialized: true });
+      setSyncBadge('online');
+    }
+  } catch(e) { console.warn('Meta check failed', e); }
+
+  // Escuta mudanças em tempo real
+  unsubscribe = onSnapshot(colRef, (snap) => {
+    visits = snap.docs.map(d => ({ ...d.data(), id: d.id }));
+    renderCalendar();
+    if (selectedDay !== null) renderDayModal();
+    setSyncBadge('online');
+  }, (err) => {
+    console.error(err);
+  });
+}
+
+// ── Calendário ─────────────────────────────────────────────────────────────
+function parseDate(str) {
+  if (!str) return null;
+  const [d, m] = str.split('/');
+  return { day: parseInt(d), month: MONTH_MAP[m.toLowerCase()] };
+}
+
+function renderFilters() {
+  const el = document.getElementById('filters');
+  el.innerHTML = '';
+  ['Todos', ...TECNICOS].forEach(t => {
+    const btn = document.createElement('button');
+    btn.className = 'filter-btn' + (filterTecnico === t ? ' active' : '');
+    btn.textContent = t;
+    btn.onclick = () => { filterTecnico = t; renderFilters(); renderCalendar(); };
+    el.appendChild(btn);
+  });
+}
+
+function renderLegend() {
+  const el = document.getElementById('legend');
+  el.innerHTML = TECNICOS.map(t => {
+    const c = TECNICO_COLORS[t];
+    return `<div class="legend-item"><div class="legend-dot" style="background:${c.border}"></div>${t}</div>`;
+  }).join('');
+}
+
+function renderCalendar() {
+  document.getElementById('month-title').textContent = MESES[month] + ' ' + year;
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  const today = new Date();
+
+  const visitsInMonth = visits.filter(v => {
+    const p = parseDate(v.date);
+    if (!p || p.month !== month) return false;
+    if (filterTecnico !== 'Todos' && v.tecnico !== filterTecnico) return false;
+    return true;
+  });
+
+  document.getElementById('visit-count').textContent = visitsInMonth.length + ' visita' + (visitsInMonth.length !== 1 ? 's' : '');
+
+  const byDay = {};
+  visitsInMonth.forEach(v => {
+    const p = parseDate(v.date);
+    if (!p) return;
+    if (!byDay[p.day]) byDay[p.day] = [];
+    byDay[p.day].push(v);
+  });
+
+  const grid = document.getElementById('cal-grid');
+  grid.innerHTML = '';
+
+  for (let i = 0; i < firstDay; i++) {
+    grid.appendChild(document.createElement('div'));
+  }
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const isToday = d === today.getDate() && month === today.getMonth() && year === today.getFullYear();
+    const dayVs = byDay[d] || [];
+    const cell = document.createElement('div');
+    cell.className = 'day-cell' + (isToday ? ' today' : '');
+    cell.onclick = () => openDayModal(d);
+
+    let chips = dayVs.slice(0,3).map(v => {
+      const c = TECNICO_COLORS[v.tecnico] || DEFAULT_COLOR;
+      const name = v.herdade.replace(/^Herdade (d[aeo] |do |da |das |dos )?/i,'').slice(0,14);
+      return `<span class="chip" style="background:${c.bg};color:${c.text};border-left:2px solid ${c.border}">${v.tecnico.split(' ')[0]} · ${name}</span>`;
+    }).join('');
+    if (dayVs.length > 3) chips += `<span class="more">+${dayVs.length-3} mais</span>`;
+
+    cell.innerHTML = `<div class="day-num">${d}</div>${chips}`;
+    grid.appendChild(cell);
+  }
+}
+
+function changeMonth(dir) {
+  month = Math.max(0, Math.min(11, month + dir));
+  renderCalendar();
+}
+window.changeMonth = changeMonth;
+
+// ── Modal dia ──────────────────────────────────────────────────────────────
+function openDayModal(day) {
+  selectedDay = day;
+  renderDayModal();
+  document.getElementById('modal-day').style.display = 'flex';
+}
+
+function renderDayModal() {
+  const dayVs = visits.filter(v => {
+    const p = parseDate(v.date);
+    return p && p.day === selectedDay && p.month === month;
+  });
+
+  document.getElementById('modal-day-header').innerHTML = `
+    <div style="margin-bottom:20px">
+      <div style="font-size:11px;color:#7a9e7a;letter-spacing:2px;text-transform:uppercase">${MESES[month]} ${year}</div>
+      <div style="font-size:22px;font-weight:600;color:#1a2e1a;font-family:'Lora',serif">Dia ${selectedDay}</div>
+    </div>`;
+
+  const container = document.getElementById('modal-day-visits');
+  if (dayVs.length === 0) {
+    container.innerHTML = '<div class="empty">Sem visitas neste dia</div>';
+    return;
+  }
+  container.innerHTML = dayVs.map(v => {
+    const c = TECNICO_COLORS[v.tecnico] || DEFAULT_COLOR;
+    return `<div class="visit-row" style="background:${c.bg};border:1px solid ${c.border}22">
+      <div class="visit-bar" style="background:${c.border}"></div>
+      <div style="flex:1;min-width:0">
+        <div class="visit-name" style="color:${c.text}">${v.herdade}</div>
+        <div class="visit-sub">${v.tecnico} · ${v.group}</div>
+      </div>
+      <button class="icon-btn" onclick="openEditModal('${v.id}')">✏️</button>
+      <button class="icon-btn" onclick="confirmDelete('${v.id}')">🗑️</button>
+    </div>`;
+  }).join('');
+}
+
+function openAdd() {
+  populateSelects('add-herdade', 'add-tecnico', null);
+  closeModal('modal-day');
+  document.getElementById('modal-add').style.display = 'flex';
+}
+window.openAdd = openAdd;
+
+async function saveAdd() {
+  const herdade = document.getElementById('add-herdade').value;
+  const tecnico = document.getElementById('add-tecnico').value;
+  const mStr = Object.keys(MONTH_MAP).find(k => MONTH_MAP[k] === month);
+  const dateStr = String(selectedDay).padStart(2,'0') + '/' + mStr;
+  setSyncBadge('saving');
+  await addDoc(collection(db, 'visits'), {
+    clientId: '', group: HERDADE_GRUPO[herdade] || '',
+    herdade, date: dateStr, tecnico
+  });
+  closeModal('modal-add');
+}
+window.saveAdd = saveAdd;
+
+function openEditModal(id) {
+  const v = visits.find(x => x.id === id);
+  if (!v) return;
+  document.getElementById('edit-id').value = id;
+  populateSelects('edit-herdade', 'edit-tecnico', v);
+  closeModal('modal-day');
+  document.getElementById('modal-edit').style.display = 'flex';
+}
+window.openEditModal = openEditModal;
+
+async function saveEdit() {
+  const id = document.getElementById('edit-id').value;
+  const herdade = document.getElementById('edit-herdade').value;
+  const tecnico = document.getElementById('edit-tecnico').value;
+  setSyncBadge('saving');
+  await updateDoc(doc(db, 'visits', id), { herdade, tecnico, group: HERDADE_GRUPO[herdade] || '' });
+  closeModal('modal-edit');
+  openDayModal(selectedDay);
+}
+window.saveEdit = saveEdit;
+
+async function confirmDelete(id) {
+  if (!confirm('Eliminar esta visita?')) return;
+  setSyncBadge('saving');
+  await deleteDoc(doc(db, 'visits', id));
+  renderDayModal();
+}
+window.confirmDelete = confirmDelete;
+
+async function deleteVisit() {
+  const id = document.getElementById('edit-id').value;
+  if (!confirm('Eliminar esta visita?')) return;
+  setSyncBadge('saving');
+  await deleteDoc(doc(db, 'visits', id));
+  closeModal('modal-edit');
+}
+window.deleteVisit = deleteVisit;
+
+function populateSelects(hEl, tEl, visit) {
+  const hSel = document.getElementById(hEl);
+  const tSel = document.getElementById(tEl);
+  hSel.innerHTML = HERDADES.map(h => `<option${visit&&visit.herdade===h?' selected':''}>${h}</option>`).join('');
+  tSel.innerHTML = TECNICOS.map(t => `<option${visit&&visit.tecnico===t?' selected':''}>${t}</option>`).join('');
+  if (!visit && currentUser && TECNICOS.includes(currentUser)) {
+    tSel.value = currentUser;
+  }
+}
+
+function closeModal(id) {
+  document.getElementById(id).style.display = 'none';
+}
+window.closeModal = closeModal;
+</script>
+
+
+</body></html>
